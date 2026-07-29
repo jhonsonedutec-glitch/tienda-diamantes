@@ -1,16 +1,12 @@
-import { cookies } from 'next/headers';
+export const apiInternalUrl = import.meta.env.VITE_API_INTERNAL_URL ?? 'https://tienda-cerebro.onrender.com/api/v1';
 
-export const ADMIN_COOKIE = 'ff_admin_session';
-
-const apiInternalUrl =
-  process.env.API_INTERNAL_URL ?? 'http://localhost:4000/api/v1';
+export const ADMIN_TOKEN_KEY = 'ff_admin_token';
 
 export async function adminBackendFetch(
   path: string,
   init: RequestInit = {},
 ): Promise<Response> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(ADMIN_COOKIE)?.value;
+  const token = localStorage.getItem(ADMIN_TOKEN_KEY);
   if (!token) {
     return new Response(JSON.stringify({ message: 'Sesión no válida.' }), {
       status: 401,
@@ -27,16 +23,6 @@ export async function adminBackendFetch(
   return fetch(`${apiInternalUrl}${path}`, {
     ...init,
     headers,
-    cache: 'no-store',
   });
 }
 
-export function passJson(response: Response) {
-  return response.text().then(
-    (body) =>
-      new Response(body, {
-        status: response.status,
-        headers: { 'Content-Type': 'application/json' },
-      }),
-  );
-}

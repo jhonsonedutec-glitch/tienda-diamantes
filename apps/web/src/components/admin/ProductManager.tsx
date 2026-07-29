@@ -1,8 +1,7 @@
-'use client';
-
 import { FormEvent, useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import { AdminHeader } from './AdminHeader';
+import { adminBackendFetch } from '@/lib/admin-session';
 
 type Product = {
   id: string;
@@ -15,15 +14,15 @@ type Product = {
 };
 
 export function ProductManager() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
   const load = useCallback(async () => {
-    const response = await fetch('/api/admin/products', { cache: 'no-store' });
+    const response = await adminBackendFetch('/admin/products');
     if (response.status === 401) {
-      router.push('/admin/login');
+      navigate('/admin/login');
       return;
     }
     if (!response.ok) {
@@ -31,7 +30,7 @@ export function ProductManager() {
       return;
     }
     setProducts(await response.json());
-  }, [router]);
+  }, [navigate]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -40,9 +39,8 @@ export function ProductManager() {
     const formElement = event.currentTarget;
     setError(''); setMessage('');
     const form = new FormData(event.currentTarget);
-    const response = await fetch('/api/admin/products', {
+    const response = await adminBackendFetch('/admin/products', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: form.get('name'),
         description: form.get('description') || undefined,
@@ -66,9 +64,8 @@ export function ProductManager() {
     if (!name) return;
     const price = window.prompt('Precio en soles:', product.salePrice ?? '');
     if (!price) return;
-    const response = await fetch(`/api/admin/products/${product.id}`, {
+    const response = await adminBackendFetch(`/admin/products/${product.id}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, salePrice: price }),
     });
     if (!response.ok) {
@@ -81,9 +78,8 @@ export function ProductManager() {
   }
 
   async function toggle(product: Product) {
-    const response = await fetch(`/api/admin/products/${product.id}`, {
+    const response = await adminBackendFetch(`/admin/products/${product.id}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ active: !product.active }),
     });
     if (!response.ok) {

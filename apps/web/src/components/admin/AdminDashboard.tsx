@@ -1,8 +1,7 @@
-'use client';
-
 import { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import { AdminHeader } from './AdminHeader';
+import { adminBackendFetch, apiInternalUrl } from '@/lib/admin-session';
 
 type Summary = {
   totalOrders: number;
@@ -34,7 +33,7 @@ type AdminOrder = {
 };
 
 export function AdminDashboard() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [summary, setSummary] = useState<Summary | null>(null);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [error, setError] = useState('');
@@ -42,11 +41,11 @@ export function AdminDashboard() {
 
   const load = useCallback(async () => {
     const [summaryResponse, ordersResponse] = await Promise.all([
-      fetch('/api/admin/summary', { cache: 'no-store' }),
-      fetch('/api/admin/orders', { cache: 'no-store' }),
+      adminBackendFetch('/admin/summary'),
+      adminBackendFetch('/admin/orders'),
     ]);
     if (summaryResponse.status === 401 || ordersResponse.status === 401) {
-      router.push('/admin/login');
+      navigate('/admin/login');
       return;
     }
     if (!summaryResponse.ok || !ordersResponse.ok) {
@@ -56,7 +55,7 @@ export function AdminDashboard() {
     setSummary(await summaryResponse.json());
     setOrders(await ordersResponse.json());
     setError('');
-  }, [router]);
+  }, [navigate]);
 
   useEffect(() => {
     void load();
@@ -79,9 +78,8 @@ export function AdminDashboard() {
     setLoadingId(id);
     setError('');
     try {
-      const response = await fetch(`/api/admin/orders/${id}/${type}`, {
+      const response = await adminBackendFetch(`/admin/orders/${id}/${type}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
       const data = await response.json();
@@ -103,7 +101,7 @@ export function AdminDashboard() {
     setLoadingId(id);
     setError('');
     try {
-      const response = await fetch(`/api/admin/orders/${id}`, { method: 'DELETE' });
+      const response = await adminBackendFetch(`/admin/orders/${id}`, { method: 'DELETE' });
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'No se pudo eliminar el pedido.');
       await load();

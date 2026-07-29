@@ -1,4 +1,4 @@
-'use client';
+
 
 import type { PublicOrderView } from '@ff/shared';
 import { FormEvent, useCallback, useEffect, useState } from 'react';

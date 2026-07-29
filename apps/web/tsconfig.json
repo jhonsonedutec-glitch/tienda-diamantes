@@ -6,6 +6,9 @@
     "jsx": "preserve",
     "noEmit": true,
     "incremental": true,
+    "types": [
+      "vite/client"
+    ],
     "plugins": [
       {
         "name": "next"

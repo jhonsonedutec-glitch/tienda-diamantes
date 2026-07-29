@@ -3,25 +3,28 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "vite",
     "prebuild": "npm run db:generate --prefix ../../ && npm run build:packages --prefix ../../",
-    "build": "next build",
-    "start": "next start",
-    "lint": "tsc --noEmit"
+    "build": "vite build",
+    "start": "vite preview",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@ff/shared": "*",
-    "next": "^15.1.5",
     "postcss": "^8.5.25",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.18.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.0",
+    "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^6.0.4",
     "tailwindcss": "^4.0.0",
-    "typescript": "^5.8.0"
+    "typescript": "^5.8.0",
+    "vite": "^8.1.5"
   }
 }

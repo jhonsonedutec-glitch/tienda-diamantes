@@ -1,10 +1,11 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
+import { apiInternalUrl, ADMIN_TOKEN_KEY } from '@/lib/admin-session';
 
 export function AdminLoginForm() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -15,7 +16,7 @@ export function AdminLoginForm() {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('/api/admin/login', {
+      const response = await fetch(`${apiInternalUrl}/auth/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -27,8 +28,8 @@ export function AdminLoginForm() {
           : data.message;
         throw new Error(message || 'No se pudo iniciar sesión.');
       }
-      router.push('/admin');
-      router.refresh();
+      localStorage.setItem(ADMIN_TOKEN_KEY, data.accessToken);
+      navigate('/admin');
     } catch (err) {
       setError((err as Error).message);
     } finally {

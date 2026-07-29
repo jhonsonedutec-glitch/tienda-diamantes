@@ -1,11 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import { AdminHeader } from './AdminHeader';
+import { adminBackendFetch } from '@/lib/admin-session';
 
 export function MetricsDashboard() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [period, setPeriod] = useState<'week' | 'month' | 'semester' | 'all'>('week');
   const [metrics, setMetrics] = useState<{ revenuePen: number; totalOrders: number; period: string } | null>(null);
   const [error, setError] = useState('');
@@ -14,9 +15,9 @@ export function MetricsDashboard() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/admin/metrics?period=${period}`, { cache: 'no-store' });
+      const response = await adminBackendFetch(`/admin/metrics?period=${period}`);
       if (response.status === 401) {
-        router.push('/admin/login');
+        navigate('/admin/login');
         return;
       }
       if (!response.ok) throw new Error('No se pudieron cargar las métricas');
@@ -29,7 +30,7 @@ export function MetricsDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [period, router]);
+  }, [period, navigate]);
 
   useEffect(() => {
     void load();

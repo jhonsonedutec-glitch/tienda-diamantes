@@ -1,15 +1,13 @@
 'use client';
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link, useNavigate } from 'react-router-dom';
 
 export function AdminHeader({ title }: { title: string }) {
-  const router = useRouter();
+  const navigate = useNavigate();
 
   async function logout() {
-    await fetch('/api/admin/logout', { method: 'POST' });
-    router.push('/admin/login');
-    router.refresh();
+    await fetch(import.meta.env.VITE_API_INTERNAL_URL ? `${import.meta.env.VITE_API_INTERNAL_URL}/auth/admin/logout` : 'https://tienda-cerebro.onrender.com/api/v1/auth/admin/logout', { method: 'POST' });
+    navigate('/admin/login');
   }
 
   return (
@@ -19,9 +17,9 @@ export function AdminHeader({ title }: { title: string }) {
         <h1 className="section-title">{title}</h1>
       </div>
       <div className="admin-nav">
-        <Link className="btn btn-secondary btn-sm" href="/admin">Pedidos</Link>
-        <Link className="btn btn-secondary btn-sm" href="/admin/productos">Productos</Link>
-        <Link className="btn btn-secondary btn-sm" href="/admin/dashboard">Métricas</Link>
+        <Link className="btn btn-secondary btn-sm" to="/admin">Pedidos</Link>
+        <Link className="btn btn-secondary btn-sm" to="/admin/productos">Productos</Link>
+        <Link className="btn btn-secondary btn-sm" to="/admin/dashboard">Métricas</Link>
         <button className="btn btn-danger btn-sm" onClick={logout}>Salir</button>
       </div>
     </div>

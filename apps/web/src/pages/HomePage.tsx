@@ -1,8 +1,22 @@
 import { OrderForm } from '@/components/OrderForm';
 import { getProducts } from '@/lib/public-api';
+import { useState, useEffect } from 'react';
 
-export default async function HomePage() {
-  const products = await getProducts();
+export default function HomePage() {
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getProducts().then(data => {
+      setProducts(data);
+      setLoading(false);
+    }).catch(err => {
+      console.error(err);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) return <div className="container" style={{padding: '80px 0', textAlign: 'center'}}>Buscando ofertas...</div>;
 
   return (
     <main>

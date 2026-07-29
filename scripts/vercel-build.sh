@@ -1,27 +1,21 @@
 #!/bin/bash
-set -ex
+set -e
 
-# Forzar directorio raíz leyendo la ruta absoluta del propio script
+echo "Vercel Build Script: Vite SPA Edition"
+
 cd "$(dirname "$0")/.."
-pwd
-ls -la
+echo "Working directory set to: $(pwd)"
 
-# 1. Instalar dependencias globales
+echo "Instalando dependencias desde el raíz..."
 npm install
 
-# 2. Forzar prisma estable
-npx prisma@6 generate --schema packages/database/prisma/schema.prisma
+echo "Generando Prisma Client..."
+npm run db:generate
 
-# 3. Empaquetar módulos compartidos
+echo "Construyendo dependencias del monorepo..."
 npm run build:packages
 
-# 4. Solucionar el Bug de Hoisting Turbopack con Tailwind v4
-# Copiamos físicamente las librerías a la raiz web para evadir la ceguera de Next.js
-cd apps/web
-mkdir -p node_modules
-cp -r ../../node_modules/postcss node_modules/postcss || true
-cp -r ../../node_modules/@tailwindcss node_modules/@tailwindcss || true
-cp -r ../../node_modules/tailwindcss node_modules/tailwindcss || true
+echo "Iniciando compilación ultrarrápida (Vite)..."
+npm run build -w @ff/web
 
-# 5. Construir producción
-npx next build
+echo "¡Compilación SPA exitosa!"

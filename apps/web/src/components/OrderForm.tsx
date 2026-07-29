@@ -1,7 +1,7 @@
 'use client';
 
 import type { CreateOrderResponse, PublicProduct } from '@ff/shared';
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 import { FormEvent, useMemo, useState } from 'react';
 import { parseApiError, publicApiUrl } from '@/lib/public-api';
 
@@ -76,7 +76,7 @@ export function OrderForm({ products }: { products: PublicProduct[] }) {
           <p className="muted small">
             El pedido vence el {new Date(created.expiresAt).toLocaleString('es-PE')}.
           </p>
-          <Link className="btn btn-primary" href={`/pedido/${created.publicCode}`}>
+          <Link className="btn btn-primary" to={`/pedido/${created.publicCode}`}>
             Subir comprobante y seguir pedido
           </Link>
         </div>
