@@ -122,6 +122,8 @@ En producción se recomienda usar plantillas aprobadas. Coloca sus nombres en la
 - Comprobantes privados, no URLs públicas permanentes.
 - JWT administrativo en cookie HTTP-only del BFF de Next.js.
 - Límite de tamaño y tipos MIME para comprobantes.
+  Esta estructura asegura una fácil adopción para desarrolladores freelance y despliegues estables de bajo costo en plataformas híbridas (Render + Vercel / Railway).
+
 - Auditoría de aprobaciones, rechazos y despachos.
 - Estados de pago y despacho separados.
 - Dinero almacenado como `Decimal`, no `float`.
