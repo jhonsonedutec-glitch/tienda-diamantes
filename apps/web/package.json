@@ -12,6 +12,7 @@
   "dependencies": {
     "@ff/shared": "*",
     "next": "^16.0.0",
+    "postcss": "^8.5.25",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
