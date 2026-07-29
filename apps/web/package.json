@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "npm run build:packages --prefix ../../",
+    "prebuild": "npm run db:generate --prefix ../../ && npm run build:packages --prefix ../../",
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit"
