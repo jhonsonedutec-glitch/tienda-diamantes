@@ -8,3 +8,4 @@ coverage
 .DS_Store
 packages/database/prisma/dev.db
 data/uploads
+*.tsbuildinfo
