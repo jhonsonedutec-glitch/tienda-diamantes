@@ -11,6 +11,7 @@
     "predev": "npm run db:generate && npm run build:packages",
     "dev": "concurrently -n WEB,API,WORKER -c auto \"npm run dev -w @ff/web\" \"npm run dev -w @ff/api\" \"npm run dev -w @ff/worker\"",
     "build": "npm run db:generate && npm run build:packages && npm run build -w @ff/api && npm run build -w @ff/worker && npm run build -w @ff/web",
+    "start": "node apps/worker/dist/main.js & node apps/api/dist/main.js",
     "lint": "npm run lint -w @ff/web && npm run lint -w @ff/api && npm run lint -w @ff/worker",
     "check": "node scripts/smoke-check.mjs",
     "db:generate": "npm run prisma:generate -w @ff/database",
