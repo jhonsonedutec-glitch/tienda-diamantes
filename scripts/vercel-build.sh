@@ -1,6 +1,9 @@
 #!/bin/bash
 set -ex
 
+# Forzar directorio raíz sin importar de dónde llame Vercel
+cd ../../
+
 # 1. Instalar dependencias globales
 npm install
 
