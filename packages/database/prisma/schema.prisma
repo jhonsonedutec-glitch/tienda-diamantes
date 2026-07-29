@@ -1,0 +1,265 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Currency {
+  PEN
+  USDT
+}
+
+enum PaymentMethod {
+  YAPE
+  BCP
+  CULQI
+  MERCADO_PAGO
+  BINANCE_PAY
+}
+
+enum PaymentProvider {
+  YAPE_MANUAL
+  BCP_MANUAL
+  CULQI
+  MERCADO_PAGO
+  BINANCE_PAY
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  PAID
+  REJECTED
+  EXPIRED
+  REFUNDED
+  REVIEW_REQUIRED
+}
+
+enum FulfillmentStatus {
+  NOT_READY
+  MANUAL_REVIEW
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum ReceiptReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum AdminRole {
+  OPERATOR
+  SUPERVISOR
+  ADMIN
+}
+
+enum NotificationChannel {
+  WHATSAPP
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum FulfillmentProvider {
+  MANUAL
+  EXTERNAL_API
+}
+
+model Product {
+  id             String         @id @default(uuid())
+  name           String
+  description    String?
+  diamonds       Int
+  bonusDiamonds  Int            @default(0)
+  imageUrl       String?
+  active         Boolean        @default(true)
+  prices         ProductPrice[]
+  orders         Order[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([active])
+}
+
+model ProductPrice {
+  id           String    @id @default(uuid())
+  productId    String
+  product      Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  currency     Currency
+  salePrice    Decimal   @db.Decimal(12, 2)
+  providerCost Decimal?  @db.Decimal(12, 2)
+  validFrom    DateTime  @default(now())
+  validUntil   DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([productId, currency, validFrom, validUntil])
+}
+
+model Order {
+  id                     String                @id @default(uuid())
+  publicCode             String                @unique
+  trackingTokenHash      String
+  customerName           String?
+  customerPhone          String
+  whatsappConsent        Boolean               @default(false)
+  playerUid              String
+  productId              String
+  product                Product               @relation(fields: [productId], references: [id], onDelete: Restrict)
+  productNameSnapshot    String
+  diamondsSnapshot       Int
+  bonusDiamondsSnapshot  Int                   @default(0)
+  priceSnapshot          Decimal               @db.Decimal(12, 2)
+  currency               Currency              @default(PEN)
+  paymentMethod          PaymentMethod
+  paymentStatus          PaymentStatus         @default(PENDING)
+  fulfillmentStatus      FulfillmentStatus     @default(NOT_READY)
+  expiresAt              DateTime
+  paidAt                 DateTime?
+  completedAt            DateTime?
+  paymentIntents         PaymentIntent[]
+  receipts               PaymentReceipt[]
+  fulfillmentAttempts    FulfillmentAttempt[]
+  notifications          Notification[]
+  auditLogs              AuditLog[]
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+
+  @@index([paymentStatus, createdAt])
+  @@index([fulfillmentStatus, createdAt])
+  @@index([customerPhone])
+  @@index([playerUid])
+}
+
+model PaymentIntent {
+  id                String          @id @default(uuid())
+  orderId           String
+  order             Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  provider          PaymentProvider
+  providerReference String?         @unique
+  amount            Decimal         @db.Decimal(12, 2)
+  currency          Currency
+  status            PaymentStatus   @default(PENDING)
+  checkoutUrl       String?
+  qrContent         String?
+  instructions      Json?
+  expiresAt         DateTime
+  paidAt            DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([orderId, status])
+}
+
+model PaymentReceipt {
+  id               String              @id @default(uuid())
+  orderId          String
+  order            Order               @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  storagePath      String              @unique
+  originalName     String
+  mimeType         String
+  sizeBytes        Int
+  operationNumber  String?
+  paymentDate      DateTime?
+  reviewStatus     ReceiptReviewStatus @default(PENDING)
+  reviewedById     String?
+  reviewedBy       AdminUser?          @relation(fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewedAt       DateTime?
+  rejectionReason  String?
+  createdAt        DateTime            @default(now())
+
+  @@index([orderId, createdAt])
+  @@index([reviewStatus, createdAt])
+  @@index([operationNumber])
+}
+
+model WebhookEvent {
+  id                String   @id @default(uuid())
+  provider          String
+  providerEventId   String
+  eventType         String
+  payload           Json
+  signatureValid    Boolean
+  processedAt       DateTime?
+  processingError   String?
+  createdAt         DateTime @default(now())
+
+  @@unique([provider, providerEventId])
+  @@index([processedAt, createdAt])
+}
+
+model FulfillmentAttempt {
+  id                String              @id @default(uuid())
+  orderId           String
+  order             Order               @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  provider          FulfillmentProvider
+  providerReference String?
+  attemptNumber     Int                 @default(1)
+  status            FulfillmentStatus
+  requestPayload    Json?
+  responsePayload   Json?
+  errorMessage      String?
+  startedAt         DateTime            @default(now())
+  completedAt       DateTime?
+
+  @@index([orderId, attemptNumber])
+}
+
+model Notification {
+  id                String              @id @default(uuid())
+  orderId           String
+  order             Order               @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  channel           NotificationChannel @default(WHATSAPP)
+  template          String
+  recipient         String
+  payload           Json
+  status            NotificationStatus  @default(PENDING)
+  attempts          Int                 @default(0)
+  providerReference String?
+  sentAt            DateTime?
+  errorMessage      String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([status, createdAt])
+  @@index([orderId, createdAt])
+}
+
+model AdminUser {
+  id            String           @id @default(uuid())
+  email         String           @unique
+  name          String
+  passwordHash  String
+  role          AdminRole        @default(OPERATOR)
+  active        Boolean          @default(true)
+  receipts      PaymentReceipt[]
+  auditLogs     AuditLog[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+}
+
+model AuditLog {
+  id            String      @id @default(uuid())
+  adminId       String?
+  admin         AdminUser?  @relation(fields: [adminId], references: [id], onDelete: SetNull)
+  orderId       String?
+  order         Order?      @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  action        String
+  entityType    String
+  entityId      String
+  previousData  Json?
+  newData       Json?
+  ipAddress     String?
+  createdAt     DateTime    @default(now())
+
+  @@index([entityType, entityId, createdAt])
+  @@index([adminId, createdAt])
+}
