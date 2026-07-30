@@ -73,12 +73,14 @@ export function OrderForm({ products }: { products: PublicProduct[] }) {
             {info.cci && <span>CCI: {info.cci}</span>}
             {info.qrUrl && <img className="qr" src={info.qrUrl} alt="Código QR de Yape" />}
           </div>
-          <p className="muted small">
-            El pedido vence el {new Date(created.expiresAt).toLocaleString('es-PE')}.
-          </p>
-          <Link className="btn btn-primary" to={`/pedido/${created.publicCode}`}>
-            Subir comprobante y seguir pedido
-          </Link>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
+            <p className="muted small" style={{ margin: 0 }}>
+              El pedido vence el {new Date(created.expiresAt).toLocaleString('es-PE')}.
+            </p>
+            <Link className="btn btn-primary" to={`/pedido/${created.publicCode}`}>
+              Subir comprobante y seguir pedido
+            </Link>
+          </div>
         </div>
         <div className="card">
           <h3>Importante</h3>
