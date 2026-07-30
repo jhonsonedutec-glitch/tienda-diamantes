@@ -147,7 +147,7 @@ export function AdminDashboard() {
                 <td>
                   <div className="actions" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      {order.paymentStatus === 'REVIEW_REQUIRED' && <>
+                      {(order.paymentStatus === 'REVIEW_REQUIRED' || order.paymentStatus === 'PENDING') && <>
                         <button className="btn btn-success btn-sm" disabled={loadingId === order.id} onClick={() => void action(order.id, 'approve')}>Aprobar</button>
                         <button className="btn btn-danger btn-sm" disabled={loadingId === order.id} onClick={() => void action(order.id, 'reject')}>Rechazar</button>
                       </>}

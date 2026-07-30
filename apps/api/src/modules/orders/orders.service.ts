@@ -350,19 +350,20 @@ export class OrdersService {
     });
     if (!order) throw new NotFoundException('Pedido no encontrado.');
     const receipt = order.receipts[0];
-    if (!receipt) throw new BadRequestException('El pedido no tiene comprobante.');
     if (order.paymentStatus === PaymentStatus.PAID) return this.getAdmin(order.id);
 
     const updated = await prisma.$transaction(async (tx) => {
-      await tx.paymentReceipt.update({
-        where: { id: receipt.id },
-        data: {
-          reviewStatus: ReceiptReviewStatus.APPROVED,
-          reviewedById: input.adminId,
-          reviewedAt: new Date(),
-          rejectionReason: null,
-        },
-      });
+      if (receipt) {
+        await tx.paymentReceipt.update({
+          where: { id: receipt.id },
+          data: {
+            reviewStatus: ReceiptReviewStatus.APPROVED,
+            reviewedById: input.adminId,
+            reviewedAt: new Date(),
+            rejectionReason: null,
+          },
+        });
+      }
       await tx.paymentIntent.updateMany({
         where: { orderId: order.id },
         data: { status: PaymentStatus.PAID, paidAt: new Date() },
@@ -422,21 +423,22 @@ export class OrdersService {
     });
     if (!order) throw new NotFoundException('Pedido no encontrado.');
     const receipt = order.receipts[0];
-    if (!receipt) throw new BadRequestException('El pedido no tiene comprobante.');
     if (order.paymentStatus === PaymentStatus.PAID) {
       throw new BadRequestException('No se puede rechazar un pago ya aprobado.');
     }
 
     const updated = await prisma.$transaction(async (tx) => {
-      await tx.paymentReceipt.update({
-        where: { id: receipt.id },
-        data: {
-          reviewStatus: ReceiptReviewStatus.REJECTED,
-          reviewedById: input.adminId,
-          reviewedAt: new Date(),
-          rejectionReason: input.reason,
-        },
-      });
+      if (receipt) {
+        await tx.paymentReceipt.update({
+          where: { id: receipt.id },
+          data: {
+            reviewStatus: ReceiptReviewStatus.REJECTED,
+            reviewedById: input.adminId,
+            reviewedAt: new Date(),
+            rejectionReason: input.reason,
+          },
+        });
+      }
       await tx.paymentIntent.updateMany({
         where: { orderId: order.id },
         data: { status: PaymentStatus.REJECTED },
