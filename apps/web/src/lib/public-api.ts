@@ -1,7 +1,10 @@
 import type { PublicProduct } from '@ff/shared';
 
-export const publicApiUrl =
-  import.meta.env.VITE_PUBLIC_API_URL ?? 'https://tienda-cerebro.onrender.com/api/v1';
+let pubEnvUrl = import.meta.env.VITE_PUBLIC_API_URL;
+if (pubEnvUrl && pubEnvUrl.includes('localhost') && window.location.hostname !== 'localhost') {
+  pubEnvUrl = undefined;
+}
+export const publicApiUrl = pubEnvUrl ?? 'https://tienda-cerebro.onrender.com/api/v1';
 
 export async function getProducts(): Promise<PublicProduct[]> {
   try {

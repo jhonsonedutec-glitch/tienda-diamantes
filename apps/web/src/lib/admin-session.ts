@@ -1,4 +1,8 @@
-export const apiInternalUrl = import.meta.env.VITE_API_INTERNAL_URL ?? 'https://tienda-cerebro.onrender.com/api/v1';
+let envUrl = import.meta.env.VITE_API_INTERNAL_URL;
+if (envUrl && envUrl.includes('localhost') && window.location.hostname !== 'localhost') {
+  envUrl = undefined;
+}
+export const apiInternalUrl = envUrl ?? 'https://tienda-cerebro.onrender.com/api/v1';
 
 export const ADMIN_TOKEN_KEY = 'ff_admin_token';
 
