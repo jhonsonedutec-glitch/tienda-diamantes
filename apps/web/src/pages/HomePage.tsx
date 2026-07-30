@@ -49,8 +49,8 @@ export default function HomePage() {
             ))}
           </div>
         ) : (
-          <div className="alert alert-error">
-            No se pudo cargar el catálogo. Verifica que la API esté iniciada.
+          <div className="alert">
+            El catálogo se encuentra temporalmente vacío. Si eres administrador, inicia sesión para añadir paquetes.
           </div>
         )}
       </section>
