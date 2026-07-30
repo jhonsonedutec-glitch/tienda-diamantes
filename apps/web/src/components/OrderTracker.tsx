@@ -41,8 +41,6 @@ export function OrderTracker({ publicCode }: { publicCode: string }) {
     const stored = localStorage.getItem(`ff-order-token:${publicCode}`) ?? '';
     setToken(stored);
     void load(stored);
-    const interval = window.setInterval(() => void load(stored), 15_000);
-    return () => window.clearInterval(interval);
   }, [load, publicCode]);
 
   async function upload(event: FormEvent<HTMLFormElement>) {
