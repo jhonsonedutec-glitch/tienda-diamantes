@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "cd ../../ && npx prisma@6 generate --schema packages/database/prisma/schema.prisma && npm run build:packages && cd apps/web && vite build",
     "start": "vite preview",
     "lint": "eslint ."
   },
