@@ -77,10 +77,11 @@ export function AdminDashboard() {
 
     setLoadingId(id);
     setError('');
+    const endpointPath = type === 'complete' ? 'complete' : `payment/${type}`;
     try {
-      const response = await adminBackendFetch(`/admin/orders/${id}/${type}`, {
+      const response = await adminBackendFetch(`/admin/orders/${id}/${endpointPath}`, {
         method: 'PATCH',
-        body: JSON.stringify(body),
+        body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined,
       });
       const data = await response.json();
       if (!response.ok) {
