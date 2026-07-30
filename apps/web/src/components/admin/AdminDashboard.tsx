@@ -41,7 +41,7 @@ export function AdminDashboard() {
 
   const load = useCallback(async () => {
     const [summaryResponse, ordersResponse] = await Promise.all([
-      adminBackendFetch('/admin/summary'),
+      adminBackendFetch('/admin/dashboard/summary'),
       adminBackendFetch('/admin/orders'),
     ]);
     if (summaryResponse.status === 401 || ordersResponse.status === 401) {
