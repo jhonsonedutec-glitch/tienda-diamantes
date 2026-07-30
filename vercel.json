@@ -1,4 +1,3 @@
 {
-  "outputDirectory": "apps/web/dist",
-  "framework": "vite"
+  "outputDirectory": "apps/web/dist"
 }
